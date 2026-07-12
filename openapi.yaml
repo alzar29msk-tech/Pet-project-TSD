@@ -1,0 +1,302 @@
+openapi: 3.1.0
+info:
+  title: API Сервиса сборки заказов (ТСД)
+  version: '1.0'
+  description: API для работы мобильного терминала сбора данных (ТСД) сборщика в торговом зале.
+servers:
+  - url: 'http://localhost:3000/api/v1'
+paths:
+  '/orders/{order_id}':
+    get:
+      summary: Получить список товаров в заказе
+      description: Список товаров из заказа на ТСД сборщика по маршруту зала.
+      operationId: get-orders-order_id
+      parameters:
+        - name: order_id
+          in: path
+          required: true
+          description: Уникальный системный ID заказа
+          schema:
+            type: string
+        - name: category
+          in: query
+          required: false
+          description: Категория/отдел торгового зала для оптимизации маршрута сборщика
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Список товаров успешно получен
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - order_id
+                  - products
+                properties:
+                  order_id:
+                    type: integer
+                    description: Системный ID заказа
+                    example: 101
+                  products:
+                    type: array
+                    description: Товары из заказа
+                    items:
+                      type: object
+                      required:
+                        - product_id
+                        - product_name
+                        - quantity_plan
+                        - quantity_fact
+                        - measurement
+                        - product_status
+                      properties:
+                        product_id:
+                          type: integer
+                          description: Идентификатор товара в базе данных
+                          example: 777
+                          x-stoplight:
+                            id: shgx96f4beyal
+                        product_name:
+                          type: string
+                          description: Наименование товара
+                          example: Молоко Домик в деревне 3.2%
+                          x-stoplight:
+                            id: 6jc4cjyqfmwbu
+                        quantity_plan:
+                          type: number
+                          description: Сколько штук или кг заказал клиент
+                          example: 2
+                          x-stoplight:
+                            id: mwkd7qjc7rl26
+                        quantity_fact:
+                          type: number
+                          x-stoplight:
+                            id: ozkyu3cqr0eck
+                          description: Фактическое количество в шт или кг
+                        measurement:
+                          x-stoplight:
+                            id: nrvibdm2849um
+                          enum:
+                            - piece
+                            - kg
+                          description: Тип товара для логики сканирования/взвешивания
+                          example: piece
+                        product_status:
+                          x-stoplight:
+                            id: xfrtntl5ve4o5
+                          enum:
+                            - pending
+                            - assembled
+                            - cancelled
+                            - replaced
+                          description: Текущее состояние сборки данной позиции
+                          example: assembled
+        '401':
+          description: Пользователь не авторизован (ТСД не вошел в систему)
+        '404':
+          description: Заказ с таким ID не найден
+      x-stoplight:
+        id: ky2se609xugnv
+    parameters:
+      - schema:
+          type: string
+        name: order_id
+        in: path
+        required: true
+    post:
+      summary: Создать заказ
+      tags: []
+      responses: {}
+      operationId: post-orders-order_id
+      x-stoplight:
+        id: djqbyxal5xffx
+      description: Создание заказа
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - order_id
+                - products
+              properties:
+                order_id:
+                  type: integer
+                  x-stoplight:
+                    id: 11469jmnffy7v
+                  description: Системный ID заказа
+                products:
+                  type: array
+                  description: Товары из заказа
+                  items:
+                    type: object
+                    required:
+                      - product_id
+                      - product_name
+                      - quantity_plan
+                      - quantity_fact
+                      - measurement
+                      - product_status
+                    properties:
+                      product_id:
+                        type: integer
+                        description: Идентификатор товара в базе данных
+                        example: 777
+                        x-stoplight:
+                          id: shgx96f4beyal
+                      product_name:
+                        type: string
+                        description: Наименование товара
+                        example: Молоко Домик в деревне 3.2%
+                        x-stoplight:
+                          id: 6jc4cjyqfmwbu
+                      quantity_plan:
+                        type: number
+                        description: Сколько штук или кг заказал клиент
+                        example: 2
+                        x-stoplight:
+                          id: mwkd7qjc7rl26
+                      quantity_fact:
+                        type: number
+                        x-stoplight:
+                          id: ozkyu3cqr0eck
+                        description: Фактическое количество в шт или кг
+                      measurement:
+                        x-stoplight:
+                          id: nrvibdm2849um
+                        enum:
+                          - piece
+                          - kg
+                        description: Тип товара для логики сканирования/взвешивания
+                        example: piece
+                      product_status:
+                        x-stoplight:
+                          id: xfrtntl5ve4o5
+                        enum:
+                          - pending
+                          - assembled
+                          - cancelled
+                          - replaced
+                        description: Текущее состояние сборки данной позиции
+                        example: assembled
+  '/products/{id}':
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Системный ID товара
+        schema:
+          type: string
+    get:
+      summary: Открыть детальную информацию о товаре
+      description: Используется при сканировании или ручном вводе кода для проверки остатков и описания.
+      operationId: get-products-id
+      responses:
+        '200':
+          description: Информация о товаре найдена
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - product_id
+                  - product_name
+                  - measurement
+                properties:
+                  product_id:
+                    type: integer
+                    example: 777
+                    x-stoplight:
+                      id: oyfkljchjhb38
+                  product_name:
+                    type: string
+                    example: Томаты Розовые
+                    x-stoplight:
+                      id: u4plyn8eq8nbx
+                  product_description:
+                    type: string
+                    example: 'Свежие томаты, урожай 2026 года'
+                    x-stoplight:
+                      id: yf9ueblckam3i
+                  availability:
+                    type: number
+                    example: 380
+                    x-stoplight:
+                      id: acqm1w4msi6wr
+                  measurement:
+                    x-stoplight:
+                      id: 7lg4zxe0dr8eu
+                    enum:
+                      - piece
+                      - kg
+  '/product_order/{product_id}':
+    parameters:
+      - schema:
+          type: string
+        name: product_id
+        in: path
+        required: true
+    patch:
+      summary: Изменить статус сборки товара (Собрать / Отменить)
+      description: Изменения статуса позиции внутри заказа
+      operationId: patch-products-id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - product_status
+              properties:
+                product_status:
+                  type: string
+                  enum:
+                    - assembled
+                    - cancelled
+                  description: Статус товара в рамках сборки текущего заказа
+                  example: assembled
+                  x-stoplight:
+                    id: sfgapozbmt9el
+                quantity_fact:
+                  type: number
+                  description: Реально собранный вес или количество штук
+                  example: 1.48
+                  x-stoplight:
+                    id: l64zkqbovgl2w
+      responses:
+        '200':
+          description: 'Статус товара успешно обновлен '
+        '400':
+          description: 'Ошибка валидации (например, попытка отменить все товары в заказе)'
+    put:
+      summary: Заменить отсутствующий товар
+      description: Замена отсутствующего товара
+      operationId: put-product_order-id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - product_id
+                - quantity_fact
+              properties:
+                product_id:
+                  type: integer
+                  description: ID нового выбранного товара-аналога
+                  example: 888
+                  x-stoplight:
+                    id: 109rqantea0ne
+                quantity_fact:
+                  type: number
+                  description: Количество подобранной замены
+                  example: 1
+                  x-stoplight:
+                    id: 7ulh2wo9ydu8c
+      responses:
+        '200':
+          description: Товар заменен
